@@ -1,195 +1,162 @@
-import React, { useState } from 'react';
-import { Flame, Clock, Zap, Bell, Volume2, Check, TrendingUp, RefreshCw } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Flame, Zap, Bell, Check, TrendingUp, Gamepad2, CalendarClock } from 'lucide-react';
 import PathwayProgress from './PathwayProgress';
 import TrendChart from './TrendChart';
-import { useToast } from './ToastProvider';
+import { usePatient } from '../../context/PatientProvider';
+import { useCollection } from '../../lib/useCollection';
+import { NotConfigured } from './ReminderVault';
 
-const initialReminders = [
-  { id: 1, title: 'Morning Medication', time: '8:00 AM', status: 'completed' },
-  { id: 2, title: 'Afternoon Walk', time: '2:00 PM', status: 'pending' },
-  { id: 3, title: 'Evening Tea & Stories', time: '5:00 PM', status: 'pending' },
-  { id: 4, title: 'Bedtime Routine', time: '9:00 PM', status: 'pending' },
-];
-
-const formatSync = (date) => {
-  const diffMin = Math.max(0, Math.round((Date.now() - date.getTime()) / 60000));
-  const rel =
-    diffMin < 1 ? 'just now'
-    : diffMin < 60 ? `${diffMin} min ago`
-    : `${Math.round(diffMin / 60)} h ago`;
-  const abs = date.toLocaleString(undefined, {
-    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-  });
-  return { rel, abs };
-};
+// Same unlock curve the patient app uses (data/games.ts).
+const unlockedGameCount = (milestone) => Math.min(8, 4 + Math.floor((milestone || 0) / 2));
 
 export default function DashboardView() {
-  const { showToast } = useToast();
-  const [reminders, setReminders] = useState(initialReminders);
-  const [lastSync, setLastSync] = useState(() => new Date(Date.now() - 12 * 60 * 1000));
-  const [syncing, setSyncing] = useState(false);
+  const { patient, patientId, configured } = usePatient();
+  const reminders = useCollection('reminders', patientId, { orderBy: 'created_at', ascending: true });
+  const progress = useCollection('game_progress', patientId, { orderBy: 'game_id', ascending: true, enabled: !!patientId });
+  const daily = useCollection('daily_records', patientId, { orderBy: 'date', ascending: true, enabled: !!patientId });
 
-  const toggleReminder = (id) => {
-    setReminders(reminders.map(r => r.id === id ? { ...r, status: r.status === 'completed' ? 'pending' : 'completed' } : r));
-  };
+  const avgAccuracy = useMemo(() => {
+    const rows = progress.rows;
+    if (!rows.length) return 0;
+    return Math.round(rows.reduce((s, r) => s + (r.best_accuracy || 0), 0) / rows.length);
+  }, [progress.rows]);
 
-  const sendVoiceNote = (title) => {
-    showToast(`Voice note sent for "${title}"`);
-  };
+  if (!configured) return <NotConfigured />;
 
-  const handleSync = () => {
-    if (syncing) return;
-    setSyncing(true);
-    setTimeout(() => {
-      setLastSync(new Date());
-      setSyncing(false);
-      showToast('Data synced — everything is up to date');
-    }, 1200);
-  };
-
-  const sync = formatSync(lastSync);
+  const gamesUnlocked = unlockedGameCount(patient?.milestone);
+  const appt = patient?.next_appointment;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Dashboard</h1>
-          <p className="text-sm" style={{ color: '#5F6F78' }}>Daily progress overview</p>
+          <p className="text-sm" style={{ color: '#5F6F78' }}>
+            {patient?.name ? `${patient.name}'s daily progress` : 'Daily progress overview'} · live from the patient app
+          </p>
         </div>
-
-        {/* Last sync date & time */}
-        <div className="glass-card rounded-xl px-4 py-2.5 flex items-center gap-3">
-          <span
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ background: syncing ? '#E88A2D' : '#3E8E7E', animation: syncing ? 'sos-pulse 1.4s infinite' : 'none' }}
-          />
-          <div className="leading-tight">
-            <div className="text-[11px] font-semibold" style={{ color: '#26343B' }}>
-              {syncing ? 'Syncing…' : `Last synced ${sync.rel}`}
+        {appt && (
+          <div className="glass-card rounded-xl px-4 py-2.5 flex items-center gap-3">
+            <CalendarClock className="w-4 h-4" style={{ color: '#5F8FA3' }} />
+            <div className="leading-tight">
+              <div className="text-[11px] font-semibold" style={{ color: '#26343B' }}>Next appointment</div>
+              <div className="text-[10px]" style={{ color: '#5F6F78' }}>{appt.date} · {appt.doctorName}</div>
             </div>
-            <div className="text-[10px]" style={{ color: '#5F6F78' }}>{sync.abs}</div>
           </div>
-          <button
-            onClick={handleSync}
-            disabled={syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: 'rgba(168,199,216,0.15)', border: '1px solid #A8C7D8', color: '#26343B' }}
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} style={{ color: '#5F8FA3' }} />
-            Sync now
-          </button>
-        </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Streak */}
-        <div className="glass-card p-5 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(232,138,45,0.12)', border: '1px solid rgba(232,138,45,0.25)' }}>
-              <Flame className="w-5 h-5" style={{ color: '#E88A2D' }} />
-            </div>
-            <span className="text-[10px] font-medium px-2 py-1 rounded-full" style={{ background: '#FCE5CC', color: '#E88A2D' }}>Active Streak</span>
-          </div>
-          <div className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>18 Days</div>
-          <div className="text-xs mt-1" style={{ color: '#5F6F78' }}>Consistent daily play streak</div>
-        </div>
-
-        {/* Playtime */}
-        <div className="glass-card p-5 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(168,199,216,0.2)', border: '1px solid rgba(168,199,216,0.35)' }}>
-              <Clock className="w-5 h-5" style={{ color: '#5F8FA3' }} />
-            </div>
-            <span className="text-[10px] font-medium px-2 py-1 rounded-full" style={{ background: 'rgba(168,199,216,0.2)', color: '#5F8FA3' }}>80% of target</span>
-          </div>
-          <div className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>24 mins</div>
-          <div className="text-xs mt-1" style={{ color: '#5F6F78' }}>Today's active playtime · 30m target</div>
-          <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: '#D6E0E5' }}>
-            <div className="h-full rounded-full" style={{ width: '80%', background: '#3E8E7E' }} />
-          </div>
-        </div>
-
-        {/* Cognitive Focus */}
-        <div className="glass-card p-5 rounded-xl">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(95,143,163,0.12)', border: '1px solid rgba(95,143,163,0.25)' }}>
-              <Zap className="w-5 h-5" style={{ color: '#5F8FA3' }} />
-            </div>
-            <span className="text-[10px] font-medium px-2 py-1 rounded-full" style={{ background: 'rgba(95,143,163,0.12)', color: '#5F8FA3' }}>Optimal</span>
-          </div>
-          <div className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>32s avg</div>
-          <div className="text-xs mt-1" style={{ color: '#5F6F78' }}>Cognitive focus & response speed</div>
-        </div>
+        <StatCard icon={Flame} iconBg="rgba(232,138,45,0.12)" iconColor="#E88A2D" tag="Active Streak" tagBg="#FCE5CC" tagColor="#E88A2D"
+          value={`${patient?.streak ?? 0} Days`} sub="Consecutive daily play streak" />
+        <StatCard icon={Zap} iconBg="rgba(95,143,163,0.12)" iconColor="#5F8FA3" tag="Best accuracy" tagBg="rgba(95,143,163,0.12)" tagColor="#5F8FA3"
+          value={`${avgAccuracy}%`} sub="Average of best score per game" />
+        <StatCard icon={Gamepad2} iconBg="rgba(62,142,126,0.12)" iconColor="#3E8E7E" tag="Progression" tagBg="#DDF1EC" tagColor="#3E8E7E"
+          value={`${gamesUnlocked} / 8`} sub={`Games unlocked · milestone ${patient?.milestone ?? 0}`} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 space-y-6">
           <div className="glass-card p-6 rounded-xl">
             <div className="flex items-center gap-2 mb-5">
-              <TrendingUp className="w-5 h-5" style={{ color: '#A8C7D8' }} />
-              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Today's Pathway Progress</h2>
+              <TrendingUp className="w-5 h-5" style={{ color: '#C9C9C9' }} />
+              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Per-Game Progress</h2>
             </div>
-            <PathwayProgress />
+            <PathwayProgress progress={progress.rows} />
           </div>
 
           <div className="glass-card p-6 rounded-xl">
             <div className="mb-4">
-              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Cognitive Stability Trend</h2>
-              <p className="text-xs" style={{ color: '#5F6F78' }}>6-week response speed & accuracy</p>
+              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Daily Accuracy Trend</h2>
+              <p className="text-xs" style={{ color: '#5F6F78' }}>Average accuracy across each completed daily set</p>
             </div>
-            <TrendChart />
+            <TrendChart records={daily.rows} />
+          </div>
+
+          <div className="glass-card p-6 rounded-xl">
+            <div className="mb-4">
+              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Games Completed per Day</h2>
+              <p className="text-xs" style={{ color: '#5F6F78' }}>Whether the daily training set was finished</p>
+            </div>
+            <DayBars records={daily.rows} />
           </div>
         </div>
 
         <div className="lg:col-span-2">
           <div className="glass-card p-6 rounded-xl">
             <div className="flex items-center gap-2 mb-5">
-              <Bell className="w-5 h-5" style={{ color: '#A8C7D8' }} />
-              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Daily Reminders</h2>
+              <Bell className="w-5 h-5" style={{ color: '#C9C9C9' }} />
+              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Today&rsquo;s Reminders</h2>
             </div>
             <div className="space-y-3">
-              {reminders.map(reminder => (
-                <div key={reminder.id} className="p-3 rounded-lg flex items-center gap-3" style={{
-                  background: reminder.status === 'completed' ? '#DDF1EC' : '#FCE5CC',
-                  border: `1px solid ${reminder.status === 'completed' ? 'rgba(62,142,126,0.2)' : 'rgba(232,138,45,0.2)'}`,
-                }}>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate" style={{ color: '#26343B' }}>{reminder.title}</div>
-                    <div className="text-xs" style={{ color: '#5F6F78' }}>{reminder.time}</div>
+              {reminders.rows.length === 0 && (
+                <p className="text-sm" style={{ color: '#5F6F78' }}>No reminders configured yet.</p>
+              )}
+              {reminders.rows.filter((r) => r.active).map((r) => {
+                const done = r.acknowledged;
+                return (
+                  <div key={r.id} className="p-3 rounded-lg flex items-center gap-3" style={{ background: '#FFFFFF', border: '1px solid #ECECEC' }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: done ? '#3E8E7E' : '#E88A2D' }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate" style={{ color: '#26343B' }}>{r.title}</div>
+                      <div className="text-xs" style={{ color: '#5F6F78' }}>{r.time}</div>
+                    </div>
+                    <span className="text-[10px] font-semibold" style={{ color: done ? '#3E8E7E' : '#9AAAB2' }}>
+                      {done ? 'Done' : 'Pending'}
+                    </span>
+                    {done && <Check className="w-3.5 h-3.5" style={{ color: '#3E8E7E' }} />}
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-1 rounded-full" style={{
-                    background: reminder.status === 'completed' ? '#3E8E7E' : '#E88A2D',
-                    color: '#FFFFFF',
-                  }}>
-                    {reminder.status === 'completed' ? 'Completed' : 'Pending'}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => sendVoiceNote(reminder.title)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                      style={{ background: 'rgba(168,199,216,0.2)', border: '1px solid #A8C7D8' }}
-                      title="Send Voice Note"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" style={{ color: '#5F8FA3' }} />
-                    </button>
-                    <button
-                      onClick={() => toggleReminder(reminder.id)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                      style={{
-                        background: reminder.status === 'completed' ? 'rgba(62,142,126,0.15)' : 'rgba(255,255,255,0.5)',
-                        border: reminder.status === 'completed' ? '1px solid rgba(62,142,126,0.3)' : '1px solid #D6E0E5',
-                      }}
-                      title="Mark Done"
-                    >
-                      <Check className="w-3.5 h-3.5" style={{ color: reminder.status === 'completed' ? '#3E8E7E' : '#5F6F78' }} />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+            <p className="text-[11px] mt-4" style={{ color: '#9AAAB2' }}>
+              Status updates automatically when the patient acknowledges a reminder in the app.
+            </p>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function DayBars({ records = [] }) {
+  const data = records.slice(-14);
+  if (data.length === 0) {
+    return <p className="text-sm py-4 text-center" style={{ color: '#5F6F78' }}>No daily records yet.</p>;
+  }
+  const max = Math.max(4, ...data.map((d) => d.games_completed ?? 0));
+  return (
+    <div className="flex items-end gap-1.5 h-32">
+      {data.map((d) => {
+        const g = d.games_completed ?? 0;
+        const full = g >= 4;
+        return (
+          <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5 min-w-0" title={`${d.date}: ${g} games`}>
+            <div className="w-full rounded-sm" style={{
+              height: `${Math.max(6, (g / max) * 100)}%`,
+              background: full ? '#3E8E7E' : '#D9E4E1',
+            }} />
+            <span className="text-[9px]" style={{ color: '#9AAAB2' }}>
+              {new Date(d.date).toLocaleDateString(undefined, { day: 'numeric' })}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, iconBg, iconColor, tag, tagBg, tagColor, value, sub }) {
+  return (
+    <div className="glass-card p-5 rounded-xl">
+      <div className="flex items-center justify-between mb-3">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: iconBg, border: `1px solid ${iconColor}33` }}>
+          <Icon className="w-5 h-5" style={{ color: iconColor }} />
+        </div>
+        <span className="text-[10px] font-medium px-2 py-1 rounded-full" style={{ background: tagBg, color: tagColor }}>{tag}</span>
+      </div>
+      <div className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>{value}</div>
+      <div className="text-xs mt-1" style={{ color: '#5F6F78' }}>{sub}</div>
     </div>
   );
 }

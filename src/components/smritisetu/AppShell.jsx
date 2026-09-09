@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flame, LayoutDashboard, Images, Bell, Settings, Phone, Users } from 'lucide-react';
+import { Flame, LayoutDashboard, Images, Bell, Settings, Phone, Users, Activity, Brain } from 'lucide-react';
 import Sidebar from './Sidebar';
 import SOSOverlay from './SOSOverlay';
 import DashboardView from './DashboardView';
@@ -7,18 +7,30 @@ import MemoryVault from './MemoryVault';
 import ReminderVault from './ReminderVault';
 import AppSettings from './AppSettings';
 import Community from './Community';
+import DoctorView from './DoctorView';
+import CognitiveReport from './CognitiveReport';
 import { ToastProvider } from './ToastProvider';
+import { usePatient } from '../../context/PatientProvider';
 
-const navItems = [
+const CAREGIVER_NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'memory', label: 'Memory Vault', icon: Images },
   { id: 'reminders', label: 'Reminder Vault', icon: Bell },
+  { id: 'report', label: 'Cognitive Report', icon: Brain },
   { id: 'community', label: 'Community', icon: Users },
   { id: 'settings', label: 'App Settings', icon: Settings },
 ];
 
+// Doctor portal is analysis-only (spec §25) — no community.
+const DOCTOR_NAV = [
+  { id: 'doctor', label: 'Patient Analysis', icon: Activity },
+  { id: 'report', label: 'Cognitive Report', icon: Brain },
+];
+
 export default function AppShell({ onLogout }) {
-  const [activeView, setActiveView] = useState('dashboard');
+  const { role, patient } = usePatient();
+  const navItems = role === 'doctor' ? DOCTOR_NAV : CAREGIVER_NAV;
+  const [activeView, setActiveView] = useState(navItems[0].id);
   const [sosActive, setSosActive] = useState(false);
 
   const renderView = () => {
@@ -28,21 +40,31 @@ export default function AppShell({ onLogout }) {
       case 'reminders': return <ReminderVault />;
       case 'community': return <Community />;
       case 'settings': return <AppSettings />;
-      default: return <DashboardView />;
+      case 'doctor': return <DoctorView />;
+      case 'report': return <CognitiveReport />;
+      default: return role === 'doctor' ? <DoctorView /> : <DashboardView />;
     }
   };
 
   return (
     <ToastProvider>
-      <div className="min-h-screen flex" style={{ background: '#EAF3F7', color: '#26343B' }}>
+      <div className="min-h-screen flex" style={{ background: '#FFFFFF', color: '#26343B' }}>
         <div className="hidden lg:flex sticky top-0 h-screen self-start flex-shrink-0">
-          <Sidebar activeView={activeView} setActiveView={setActiveView} navItems={navItems} onSOS={() => setSosActive(true)} onLogout={onLogout} />
+          <Sidebar
+            activeView={activeView}
+            setActiveView={setActiveView}
+            navItems={navItems}
+            onSOS={() => setSosActive(true)}
+            onLogout={onLogout}
+            role={role}
+            patientName={patient?.name}
+          />
         </div>
 
         <div className="flex-1 flex flex-col min-h-screen">
-          <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3" style={{ background: '#FFFFFF', borderBottom: '1px solid #D6E0E5' }}>
+          <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3" style={{ background: '#FFFFFF', borderBottom: '1px solid #E7E7E7' }}>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(168,199,216,0.3), rgba(168,199,216,0.15))', border: '1px solid #A8C7D8' }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#F1F1F2', border: '1px solid #C9C9C9' }}>
                 <Flame className="w-4 h-4" style={{ color: '#3E8E7E' }} />
               </div>
               <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>SmritiSetu</span>
@@ -57,7 +79,7 @@ export default function AppShell({ onLogout }) {
             {renderView()}
           </main>
 
-          <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around px-2 py-2" style={{ background: '#FFFFFF', borderTop: '1px solid #D6E0E5' }}>
+          <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around px-2 py-2" style={{ background: '#FFFFFF', borderTop: '1px solid #E7E7E7' }}>
             {navItems.map(item => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
@@ -76,5 +98,3 @@ export default function AppShell({ onLogout }) {
     </ToastProvider>
   );
 }
-
-

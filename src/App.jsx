@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { PatientProvider, usePatient } from './context/PatientProvider';
 import LoginScreen from './components/smritisetu/LoginScreen';
 import AppShell from './components/smritisetu/AppShell';
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+function Gate() {
+  const { status, disconnect } = usePatient();
 
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
+  if (status !== 'connected') {
+    return <LoginScreen />;
   }
+  return <AppShell onLogout={disconnect} />;
+}
 
-  return <AppShell onLogout={() => setIsLoggedIn(false)} />;
+export default function App() {
+  return (
+    <PatientProvider>
+      <Gate />
+    </PatientProvider>
+  );
 }

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 199 45% 94%;
+    --background: 0 0% 100%;
     --foreground: 200 5% 19%;
     --card: 0 0% 100%;
     --card-foreground: 200 5% 19%;
@@ -92,10 +92,12 @@
 }
 
 @layer components {
+  /* Plain white panel with a hairline border — the single "box" style used
+     across both portals. Kept deliberately minimal. */
   .glass-card {
     background: #FFFFFF;
-    border: 1px solid #D6E0E5;
-    box-shadow: 0 2px 8px rgba(38, 52, 59, 0.06);
+    border: 1px solid #ECECEC;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   }
 }
 

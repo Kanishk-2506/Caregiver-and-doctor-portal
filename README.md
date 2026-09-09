@@ -1,25 +1,34 @@
-# SmritiSetu — Caregiver Portal
+# SmritiSetu — Caregiver &amp; Doctor Portal
 
-A single-page React prototype for a dementia-caregiver portal (dashboard, memory
-vault, reminder vault, app settings, SOS call). Everything runs in the browser
-with mock data — there is no backend.
+A React (Vite) portal for the SIH Dementia Support Platform. It connects to the
+same Supabase backend as the patient app, so edits here sync live to the app
+(and vice-versa). See [`../INTEGRATION.md`](../INTEGRATION.md) for the full
+architecture.
+
+If the backend isn't configured it falls back to local demo data and still runs.
 
 ## Stack
 
 - [Vite](https://vite.dev/) + React 18
-- Tailwind CSS 3
-- lucide-react icons
+- Tailwind CSS 3, lucide-react icons
+- `@supabase/supabase-js` (Postgres + Realtime + Storage)
 
 ## Run locally
 
 ```bash
 npm install
+cp .env.example .env      # then paste your Supabase URL + anon key
 npm run dev
 ```
 
-Vite serves the app at http://localhost:5173 (opens automatically).
+Vite serves at http://localhost:5173.
 
-On the login screen, enter **any 8-digit code** to enter the portal.
+### Logging in
+
+- **Caregiver:** the patient's access code — demo `KAML-1234`
+- **Doctor:** a doctor access code — demo `DRSH-2024`
+
+Toggle the role on the login screen.
 
 ## Other commands
 
@@ -32,10 +41,17 @@ npm run lint      # eslint
 ## Project layout
 
 ```
-index.html
 src/
-  main.jsx                     app entry
-  App.jsx                      login screen <-> app shell
-  index.css                    Tailwind directives, theme vars, animations
-  components/smritisetu/       all screens and widgets
+  main.jsx                      app entry
+  App.jsx                       PatientProvider + connection gate
+  context/PatientProvider.jsx   holds the connected patient (realtime)
+  lib/
+    supabase.js                 client (reads VITE_SUPABASE_*)
+    api.js                      all backend queries
+    useCollection.js            live per-patient table hook
+  components/smritisetu/
+    LoginScreen.jsx             caregiver / doctor connect
+    AppShell.jsx                role-aware nav
+    DashboardView / ReminderVault / MemoryVault / Community / AppSettings   caregiver
+    DoctorView.jsx              doctor: performance, clinical review, appointments
 ```

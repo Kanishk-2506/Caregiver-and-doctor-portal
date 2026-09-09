@@ -1,9 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { X, User } from 'lucide-react';
+import { usePatient } from '../../context/PatientProvider';
+import { supabase, isConfigured } from '../../lib/supabase';
 
 export default function SOSOverlay({ onCancel }) {
+  const { patientId, patient } = usePatient();
   const [seconds, setSeconds] = useState(0);
   const [status, setStatus] = useState('dialing');
+  const [contact, setContact] = useState(null);
+
+  useEffect(() => {
+    if (!isConfigured || !patientId) return;
+    supabase
+      .from('contacts')
+      .select('*')
+      .eq('patient_id', patientId)
+      .eq('category', 'caregiver')
+      .order('is_primary', { ascending: false })
+      .limit(1)
+      .then(({ data }) => setContact(data?.[0] || null));
+  }, [patientId]);
+
+  const name = contact?.name || patient?.caregiver_name || 'Primary Caregiver';
+  const relation = contact?.relation || 'Primary Caregiver';
+  const phone = contact?.phone || '—';
 
   useEffect(() => {
     const timer = setInterval(() => setSeconds(s => s + 1), 1000);
@@ -38,9 +58,9 @@ export default function SOSOverlay({ onCancel }) {
         </div>
       </div>
 
-      <h2 className="text-xl font-bold mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: '#FFFFFF' }}>Dr. Sharma</h2>
-      <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Emergency Care Specialist</p>
-      <p className="text-lg font-mono mb-4" style={{ color: '#A8C7D8' }}>+91 98765 43210</p>
+      <h2 className="text-xl font-bold mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: '#FFFFFF' }}>{name}</h2>
+      <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>{relation}</p>
+      <p className="text-lg font-mono mb-4" style={{ color: '#C9C9C9' }}>{phone}</p>
 
       <div className="flex items-center gap-2 mb-8">
         <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: status === 'dialing' ? '#E74C4C' : '#3E8E7E' }} />
