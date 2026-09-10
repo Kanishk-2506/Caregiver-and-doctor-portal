@@ -14,9 +14,9 @@ import { usePatient } from '../../context/PatientProvider';
 
 const CAREGIVER_NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'report', label: 'Cognitive Report', icon: Brain },
   { id: 'memory', label: 'Memory Vault', icon: Images },
   { id: 'reminders', label: 'Reminder Vault', icon: Bell },
-  { id: 'report', label: 'Cognitive Report', icon: Brain },
   { id: 'community', label: 'Community', icon: Users },
   { id: 'settings', label: 'App Settings', icon: Settings },
 ];
