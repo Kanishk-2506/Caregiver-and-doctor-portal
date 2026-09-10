@@ -67,8 +67,8 @@ export default function AppShell({ onLogout }) {
         <div className="flex-1 flex flex-col min-h-screen">
           <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3" style={{ background: '#FFFFFF', borderBottom: '1px solid #E7E7E7' }}>
             <div className="flex items-center gap-2">
-              <img src="/logo.jpg" alt="Nirmaya" className="w-8 h-8 rounded-lg object-cover" />
-              <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Nirmaya</span>
+              <img src="/logo.jpg" alt="Niramaya" className="w-8 h-8 rounded-lg object-cover" />
+              <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</span>
             </div>
             <button onClick={() => setSosActive(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#E74C4C', animation: 'sos-pulse 2s infinite' }}>
               <Phone className="w-3.5 h-3.5" />

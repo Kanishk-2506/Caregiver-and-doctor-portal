@@ -25,8 +25,8 @@ export default function LoginScreen() {
       <div className="w-full max-w-[420px]">
         <div className="glass-card p-8 rounded-2xl">
           <div className="flex flex-col items-center mb-7">
-            <img src="/logo.jpg" alt="Nirmaya" className="w-16 h-16 rounded-2xl object-cover mb-4" />
-            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Nirmaya</h1>
+            <img src="/logo.jpg" alt="Niramaya" className="w-16 h-16 rounded-2xl object-cover mb-4" />
+            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</h1>
             <p className="text-xs mt-1" style={{ color: '#5F6F78' }}>
               {role === 'doctor' ? 'Doctor Portal · NER' : 'Caregiver Portal · NER'}
             </p>

@@ -1,6 +1,6 @@
 import { PatientProvider, usePatient } from './context/PatientProvider';
-import LoginScreen from './components/nirmaya/LoginScreen';
-import AppShell from './components/nirmaya/AppShell';
+import LoginScreen from './components/niramaya/LoginScreen';
+import AppShell from './components/niramaya/AppShell';
 
 function Gate() {
   const { status, disconnect } = usePatient();

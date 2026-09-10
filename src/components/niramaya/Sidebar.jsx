@@ -5,9 +5,9 @@ export default function Sidebar({ activeView, setActiveView, navItems, onSOS, on
   return (
     <aside className="w-64 flex flex-col h-screen p-4" style={{ background: '#FFFFFF', borderRight: '1px solid #ECECEC' }}>
       <div className="flex items-center gap-3 mb-8 px-2">
-        <img src="/logo.jpg" alt="Nirmaya" className="w-10 h-10 rounded-xl object-cover" />
+        <img src="/logo.jpg" alt="Niramaya" className="w-10 h-10 rounded-xl object-cover" />
         <div>
-          <h1 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Nirmaya</h1>
+          <h1 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</h1>
           <p className="text-[10px]" style={{ color: '#5F6F78' }}>
             {role === 'doctor' ? 'Doctor Portal · NER' : 'Caregiver Portal · NER'}
           </p>
