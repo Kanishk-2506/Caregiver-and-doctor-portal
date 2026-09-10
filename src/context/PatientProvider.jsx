@@ -4,7 +4,7 @@ import { findPatientByAccessCode, findPatientByDoctorCode, getPatient } from '..
 
 const PatientContext = createContext(null);
 
-const SESSION_KEY = 'smritisetu.session.v1';
+const SESSION_KEY = 'nirmaya.session.v1';
 
 /**
  * Holds the portal's connection to ONE patient.

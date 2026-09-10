@@ -299,8 +299,8 @@ function ComposePage({ authorName, onCancel, onSubmit }) {
 }
 
 function loadUpvotes() {
-  try { return JSON.parse(localStorage.getItem('smritisetu.upvotes') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('nirmaya.upvotes') || '[]'); } catch { return []; }
 }
 function saveUpvotes(ids) {
-  try { localStorage.setItem('smritisetu.upvotes', JSON.stringify(ids)); } catch { /* ignore */ }
+  try { localStorage.setItem('nirmaya.upvotes', JSON.stringify(ids)); } catch { /* ignore */ }
 }

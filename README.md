@@ -1,4 +1,4 @@
-# Niramaya — Caregiver &amp; Doctor Portal
+# Nirmaya — Caregiver &amp; Doctor Portal
 
 A React (Vite) portal for the SIH Dementia Support Platform. It connects to the
 same Supabase backend as the patient app, so edits here sync live to the app
@@ -49,7 +49,7 @@ src/
     supabase.js                 client (reads VITE_SUPABASE_*)
     api.js                      all backend queries
     useCollection.js            live per-patient table hook
-  components/smritisetu/
+  components/nirmaya/
     LoginScreen.jsx             caregiver / doctor connect
     AppShell.jsx                role-aware nav
     DashboardView / ReminderVault / MemoryVault / Community / AppSettings   caregiver

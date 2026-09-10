@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flame, LayoutDashboard, Images, Bell, Settings, Phone, Users, Activity, Brain } from 'lucide-react';
+import { LayoutDashboard, Images, Bell, Settings, Phone, Users, Activity, Brain } from 'lucide-react';
 import Sidebar from './Sidebar';
 import SOSOverlay from './SOSOverlay';
 import DashboardView from './DashboardView';
@@ -64,10 +64,8 @@ export default function AppShell({ onLogout }) {
         <div className="flex-1 flex flex-col min-h-screen">
           <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3" style={{ background: '#FFFFFF', borderBottom: '1px solid #E7E7E7' }}>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#F1F1F2', border: '1px solid #C9C9C9' }}>
-                <Flame className="w-4 h-4" style={{ color: '#3E8E7E' }} />
-              </div>
-              <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</span>
+              <img src="/logo.jpg" alt="Nirmaya" className="w-8 h-8 rounded-lg object-cover" />
+              <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Nirmaya</span>
             </div>
             <button onClick={() => setSosActive(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#E74C4C', animation: 'sos-pulse 2s infinite' }}>
               <Phone className="w-3.5 h-3.5" />

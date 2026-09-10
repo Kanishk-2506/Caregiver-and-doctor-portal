@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Flame, Loader2, ArrowRight, CheckCircle2, HeartHandshake, Stethoscope, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowRight, CheckCircle2, HeartHandshake, Stethoscope, AlertCircle } from 'lucide-react';
 import { usePatient } from '../../context/PatientProvider';
 
 export default function LoginScreen() {
@@ -25,13 +25,8 @@ export default function LoginScreen() {
       <div className="w-full max-w-[420px]">
         <div className="glass-card p-8 rounded-2xl">
           <div className="flex flex-col items-center mb-7">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{
-              background: '#F1F1F2',
-              border: '1px solid #C9C9C9',
-            }}>
-              <Flame className="w-8 h-8" style={{ color: '#3E8E7E' }} />
-            </div>
-            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</h1>
+            <img src="/logo.jpg" alt="Nirmaya" className="w-16 h-16 rounded-2xl object-cover mb-4" />
+            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Nirmaya</h1>
             <p className="text-xs mt-1" style={{ color: '#5F6F78' }}>
               {role === 'doctor' ? 'Doctor Portal · NER' : 'Caregiver Portal · NER'}
             </p>

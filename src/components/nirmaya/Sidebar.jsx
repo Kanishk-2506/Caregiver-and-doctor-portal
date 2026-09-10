@@ -1,18 +1,13 @@
 import React from 'react';
-import { Flame, Phone, LogOut } from 'lucide-react';
+import { Phone, LogOut } from 'lucide-react';
 
 export default function Sidebar({ activeView, setActiveView, navItems, onSOS, onLogout, role = 'caregiver', patientName }) {
   return (
     <aside className="w-64 flex flex-col h-screen p-4" style={{ background: '#FFFFFF', borderRight: '1px solid #ECECEC' }}>
       <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{
-          background: '#F1F1F2',
-          border: '1px solid #C9C9C9',
-        }}>
-          <Flame className="w-5 h-5" style={{ color: '#3E8E7E' }} />
-        </div>
+        <img src="/logo.jpg" alt="Nirmaya" className="w-10 h-10 rounded-xl object-cover" />
         <div>
-          <h1 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</h1>
+          <h1 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Nirmaya</h1>
           <p className="text-[10px]" style={{ color: '#5F6F78' }}>
             {role === 'doctor' ? 'Doctor Portal · NER' : 'Caregiver Portal · NER'}
           </p>
