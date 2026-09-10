@@ -12,7 +12,7 @@ export const isConfigured = Boolean(url && anonKey);
 if (!isConfigured) {
   // Not fatal — the portal falls back to local demo data so it still runs.
   console.warn(
-    '[SmritiSetu] Supabase is not configured. Add VITE_SUPABASE_URL and ' +
+    '[Niramaya] Supabase is not configured. Add VITE_SUPABASE_URL and ' +
       'VITE_SUPABASE_ANON_KEY to web-portal/.env and restart `npm run dev`.',
   );
 }

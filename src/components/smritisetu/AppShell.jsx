@@ -67,7 +67,7 @@ export default function AppShell({ onLogout }) {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#F1F1F2', border: '1px solid #C9C9C9' }}>
                 <Flame className="w-4 h-4" style={{ color: '#3E8E7E' }} />
               </div>
-              <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>SmritiSetu</span>
+              <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</span>
             </div>
             <button onClick={() => setSosActive(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#E74C4C', animation: 'sos-pulse 2s infinite' }}>
               <Phone className="w-3.5 h-3.5" />

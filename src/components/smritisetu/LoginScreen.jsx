@@ -31,7 +31,7 @@ export default function LoginScreen() {
             }}>
               <Flame className="w-8 h-8" style={{ color: '#3E8E7E' }} />
             </div>
-            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>SmritiSetu</h1>
+            <h1 className="text-2xl font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</h1>
             <p className="text-xs mt-1" style={{ color: '#5F6F78' }}>
               {role === 'doctor' ? 'Doctor Portal · NER' : 'Caregiver Portal · NER'}
             </p>

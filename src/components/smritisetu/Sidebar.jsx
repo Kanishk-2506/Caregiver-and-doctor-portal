@@ -12,7 +12,7 @@ export default function Sidebar({ activeView, setActiveView, navItems, onSOS, on
           <Flame className="w-5 h-5" style={{ color: '#3E8E7E' }} />
         </div>
         <div>
-          <h1 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>SmritiSetu</h1>
+          <h1 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Niramaya</h1>
           <p className="text-[10px]" style={{ color: '#5F6F78' }}>
             {role === 'doctor' ? 'Doctor Portal · NER' : 'Caregiver Portal · NER'}
           </p>

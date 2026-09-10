@@ -1,4 +1,4 @@
-# SmritiSetu — Caregiver &amp; Doctor Portal
+# Niramaya — Caregiver &amp; Doctor Portal
 
 A React (Vite) portal for the SIH Dementia Support Platform. It connects to the
 same Supabase backend as the patient app, so edits here sync live to the app
