@@ -10,7 +10,7 @@ import { NotConfigured } from './ReminderVault';
 const unlockedGameCount = (m) => Math.min(8, 4 + Math.floor((m || 0) / 2));
 
 const GAME_TITLES = {
-  'memory-flip': 'Memory Flow', 'pattern-recognition': 'Pattern Recognition',
+  'memory-flip': 'Memory Flip', 'pattern-recognition': 'Pattern Recognition',
   'sequence-recall': 'Sequence Recall', 'jigsaw-puzzle': 'Jigsaw Puzzle',
   'musical-sequence': 'Musical Sequence', 'flow-free': 'Northeast Trails',
   'rule-switch': 'Rule Switch', 'picture-recall': 'Picture Detection',

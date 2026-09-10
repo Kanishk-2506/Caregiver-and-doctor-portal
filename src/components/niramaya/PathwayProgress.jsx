@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 
 // Mirrors data/games.ts in the patient app.
 const GAME_TITLES = {
-  'memory-flip': 'Memory Flow',
+  'memory-flip': 'Memory Flip',
   'pattern-recognition': 'Pattern Recognition',
   'sequence-recall': 'Sequence Recall',
   'jigsaw-puzzle': 'Jigsaw Puzzle',
