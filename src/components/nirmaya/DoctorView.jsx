@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Activity, CalendarClock, Flame, Gamepad2, Stethoscope, TrendingUp, Save, Info } from 'lucide-react';
+import { Activity, Flame, Gamepad2, TrendingUp, Info } from 'lucide-react';
 import PathwayProgress from './PathwayProgress';
 import TrendChart from './TrendChart';
-import { useToast } from './ToastProvider';
 import { usePatient } from '../../context/PatientProvider';
 import { useCollection } from '../../lib/useCollection';
-import { getRecentResults, setNextAppointment } from '../../lib/api';
+import { getRecentResults } from '../../lib/api';
 import { NotConfigured } from './ReminderVault';
 
 const unlockedGameCount = (m) => Math.min(8, 4 + Math.floor((m || 0) / 2));
@@ -18,56 +17,28 @@ const GAME_TITLES = {
 };
 
 export default function DoctorView() {
-  const { showToast } = useToast();
-  const { patient, patientId, doctor, configured, setPatient } = usePatient();
+  const { patient, patientId, doctor, configured } = usePatient();
 
   const progress = useCollection('game_progress', patientId, { orderBy: 'game_id', enabled: !!patientId });
   const daily = useCollection('daily_records', patientId, { orderBy: 'date', enabled: !!patientId });
   const [results, setResults] = useState([]);
-
-  const [appt, setAppt] = useState({ date: '', doctorName: '', hospital: '' });
-  const [savingAppt, setSavingAppt] = useState(false);
 
   useEffect(() => {
     if (!patientId || !configured) return;
     getRecentResults(patientId, 20).then(setResults).catch(() => {});
   }, [patientId, configured]);
 
-  useEffect(() => {
-    if (patient?.next_appointment) setAppt(patient.next_appointment);
-    else if (doctor) setAppt((a) => ({ ...a, doctorName: doctor.name, hospital: doctor.hospital }));
-  }, [patient?.next_appointment, doctor]);
-
   const trend = useMemo(() => {
     const rows = daily.rows;
     if (rows.length < 2) return null;
     const first = rows[0].avg_accuracy;
     const last = rows[rows.length - 1].avg_accuracy;
-    const delta = last - first;
-    return { first, last, delta };
+    return { first, last, delta: last - first };
   }, [daily.rows]);
 
   if (!configured) return <NotConfigured />;
 
   const gamesUnlocked = unlockedGameCount(patient?.milestone);
-
-  const saveAppt = async () => {
-    if (!appt.date) return;
-    setSavingAppt(true);
-    try {
-      const updated = await setNextAppointment(patientId, {
-        date: appt.date,
-        doctorName: appt.doctorName || doctor?.name || 'Doctor',
-        hospital: appt.hospital || doctor?.hospital || '',
-      });
-      setPatient(updated);
-      showToast('Next appointment set — synced to caregiver + patient');
-    } catch (e) {
-      showToast(e.message || 'Could not save', 'info');
-    } finally {
-      setSavingAppt(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -78,7 +49,6 @@ export default function DoctorView() {
         </p>
       </div>
 
-      {/* Restricted-access note */}
       <div className="glass-card rounded-xl p-4 flex items-start gap-3">
         <Info className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#5F8FA3' }} />
         <p className="text-xs leading-relaxed" style={{ color: '#4A6470' }}>
@@ -124,39 +94,10 @@ export default function DoctorView() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2">
           <div className="glass-card p-6 rounded-xl">
             <h2 className="text-base font-semibold mb-4" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Per-Game Progress</h2>
             <PathwayProgress progress={progress.rows} />
-          </div>
-
-          {/* Appointment management (spec §25.3) */}
-          <div className="glass-card p-6 rounded-xl">
-            <div className="flex items-center gap-2 mb-4">
-              <CalendarClock className="w-5 h-5" style={{ color: '#C9C9C9' }} />
-              <h2 className="text-base font-semibold" style={{ fontFamily: 'Outfit, sans-serif', color: '#26343B' }}>Next Appointment</h2>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs mb-1.5 block" style={{ color: '#5F6F78' }}>Date &amp; time (as shown to the patient)</label>
-                <input value={appt.date} onChange={(e) => setAppt({ ...appt, date: e.target.value })} placeholder="e.g. Mon 22 Sep, 11:30 AM" className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:border-[#C9C9C9]" style={{ background: '#FFFFFF', borderColor: '#E7E7E7', color: '#26343B' }} />
-              </div>
-              <div>
-                <label className="text-xs mb-1.5 block" style={{ color: '#5F6F78' }}>Doctor</label>
-                <input value={appt.doctorName} onChange={(e) => setAppt({ ...appt, doctorName: e.target.value })} className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:border-[#C9C9C9]" style={{ background: '#FFFFFF', borderColor: '#E7E7E7', color: '#26343B' }} />
-              </div>
-              <div>
-                <label className="text-xs mb-1.5 block" style={{ color: '#5F6F78' }}>Hospital / clinic</label>
-                <input value={appt.hospital} onChange={(e) => setAppt({ ...appt, hospital: e.target.value })} className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:border-[#C9C9C9]" style={{ background: '#FFFFFF', borderColor: '#E7E7E7', color: '#26343B' }} />
-              </div>
-              <button onClick={saveAppt} disabled={!appt.date || savingAppt} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:scale-[1.02] disabled:opacity-40" style={{ background: '#E88A2D' }}>
-                <Save className="w-4 h-4" />
-                {savingAppt ? 'Saving…' : 'Set Appointment'}
-              </button>
-              <p className="text-[11px]" style={{ color: '#9AAAB2' }}>
-                Doctor Portal → backend → caregiver portal + patient app. It becomes a reminder in the patient's app.
-              </p>
-            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Images, Bell, Settings, Phone, Users, Activity, Brain } from 'lucide-react';
+import { LayoutDashboard, Images, Bell, Settings, Phone, Users, Activity, Brain, CalendarClock } from 'lucide-react';
 import Sidebar from './Sidebar';
 import SOSOverlay from './SOSOverlay';
 import DashboardView from './DashboardView';
@@ -9,6 +9,7 @@ import AppSettings from './AppSettings';
 import Community from './Community';
 import DoctorView from './DoctorView';
 import CognitiveReport from './CognitiveReport';
+import AppointmentView from './AppointmentView';
 import { ToastProvider } from './ToastProvider';
 import { usePatient } from '../../context/PatientProvider';
 
@@ -25,6 +26,7 @@ const CAREGIVER_NAV = [
 const DOCTOR_NAV = [
   { id: 'doctor', label: 'Patient Analysis', icon: Activity },
   { id: 'report', label: 'Cognitive Report', icon: Brain },
+  { id: 'appointment', label: 'Appointment', icon: CalendarClock },
 ];
 
 export default function AppShell({ onLogout }) {
@@ -42,6 +44,7 @@ export default function AppShell({ onLogout }) {
       case 'settings': return <AppSettings />;
       case 'doctor': return <DoctorView />;
       case 'report': return <CognitiveReport />;
+      case 'appointment': return <AppointmentView />;
       default: return role === 'doctor' ? <DoctorView /> : <DashboardView />;
     }
   };
