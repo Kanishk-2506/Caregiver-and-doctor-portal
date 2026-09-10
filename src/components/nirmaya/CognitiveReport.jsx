@@ -180,7 +180,7 @@ export default function CognitiveReport() {
           {/* raw-metric summary */}
           {summary && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Metric icon={Timer} label="Reaction time" value={`${(summary.reactionNow / 1000).toFixed(1)}s`}
+              <Metric icon={Timer} label="Response time" value={`${(summary.reactionNow / 1000).toFixed(1)}s`}
                 sub={`was ${(summary.reactionThen / 1000).toFixed(1)}s`} warn={summary.reactionNow > summary.reactionThen * 1.15} />
               <Metric icon={Activity} label="Error rate" value={`${summary.errorRate}%`} sub="incorrect interactions" />
               <Metric icon={LogOut} label="Task abandonment" value={`${summary.abandonRate}%`} sub="sessions quit early"
@@ -205,7 +205,7 @@ export default function CognitiveReport() {
               </ResponsiveContainer>
             </Panel>
 
-            <Panel title="Reaction time vs accuracy" subtitle="Accuracy can hold flat while reaction time keeps climbing — decline is still active">
+            <Panel title="Response time vs accuracy" subtitle="Accuracy can hold flat while response time keeps climbing — decline is still active">
               <ResponsiveContainer width="100%" height={260}>
                 <ComposedChart data={trendData} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
                   <XAxis dataKey="label" tick={{ fill: MUTED, fontSize: 10 }} tickLine={false} axisLine={{ stroke: '#ECECEC' }} />
@@ -214,7 +214,7 @@ export default function CognitiveReport() {
                   <Tooltip contentStyle={tooltipStyle} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line yAxisId="acc" type="monotone" dataKey="accuracy" name="Accuracy" stroke={ACCENT} strokeWidth={2.5} dot={false} />
-                  <Line yAxisId="rt" type="monotone" dataKey="reaction" name="Reaction (s)" stroke={ACCENT2} strokeWidth={2} strokeDasharray="5 4" dot={false} />
+                  <Line yAxisId="rt" type="monotone" dataKey="reaction" name="Response (s)" stroke={ACCENT2} strokeWidth={2} strokeDasharray="5 4" dot={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             </Panel>

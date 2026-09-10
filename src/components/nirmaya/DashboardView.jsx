@@ -122,26 +122,46 @@ export default function DashboardView() {
 function DayBars({ records = [] }) {
   const data = records.slice(-14);
   if (data.length === 0) {
-    return <p className="text-sm py-4 text-center" style={{ color: '#5F6F78' }}>No daily records yet.</p>;
+    return <p className="text-sm py-6 text-center" style={{ color: '#5F6F78' }}>No daily records yet.</p>;
   }
   const max = Math.max(4, ...data.map((d) => d.games_completed ?? 0));
+  const finishedDays = data.filter((d) => (d.games_completed ?? 0) >= 4).length;
+
   return (
-    <div className="flex items-end gap-1.5 h-32">
-      {data.map((d) => {
-        const g = d.games_completed ?? 0;
-        const full = g >= 4;
-        return (
-          <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5 min-w-0" title={`${d.date}: ${g} games`}>
-            <div className="w-full rounded-sm" style={{
-              height: `${Math.max(6, (g / max) * 100)}%`,
-              background: full ? '#3E8E7E' : '#D9E4E1',
-            }} />
-            <span className="text-[9px]" style={{ color: '#9AAAB2' }}>
-              {new Date(d.date).toLocaleDateString(undefined, { day: 'numeric' })}
-            </span>
-          </div>
-        );
-      })}
+    <div>
+      <div className="flex gap-2 h-40">
+        {data.map((d) => {
+          const g = d.games_completed ?? 0;
+          const acc = d.avg_accuracy ?? 0;
+          const full = g >= 4;
+          return (
+            <div
+              key={d.date}
+              className="flex-1 flex flex-col items-center justify-end min-w-0"
+              title={`${new Date(d.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} — ${g} games, ${acc}% avg accuracy`}
+            >
+              <span className="text-[10px] font-bold mb-1" style={{ color: full ? '#3E8E7E' : '#9AAAB2' }}>{g}</span>
+              <div
+                className="w-full rounded-t-md transition-all"
+                style={{ height: `${Math.max(4, (g / max) * 100)}%`, background: full ? '#3E8E7E' : '#DBE4E1' }}
+              />
+              <span className="text-[10px] mt-1.5" style={{ color: '#9AAAB2' }}>
+                {new Date(d.date).toLocaleDateString(undefined, { day: 'numeric' })}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-4 mt-3 text-[11px]" style={{ color: '#5F6F78' }}>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-sm" style={{ background: '#3E8E7E' }} /> full set (4+ games)
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-sm" style={{ background: '#DBE4E1' }} /> partial day
+        </span>
+        <span className="ml-auto">{finishedDays} / {data.length} days completed</span>
+      </div>
     </div>
   );
 }
